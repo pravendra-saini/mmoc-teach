@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "389424571531",
+    "project_id": "mmoc-teach",
+    "storage_bucket": "mmoc-teach.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:389424571531:android:250a52dee5227d5089a08e",
+        "android_client_info": {
+          "package_name": "com.example.mmoc_teach"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwXKThStGqHdAAgsTgp-1mKnmorVUlBX4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
