@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../data/default_quiz_data.dart';
 
 class AddCourseScreen extends StatefulWidget {
   final String? docId;
@@ -62,17 +63,40 @@ class _AddCourseScreenState extends State<AddCourseScreen> {
     if (widget.docId == null) {
       data["createdAt"] = Timestamp.now();
 
-      await FirebaseFirestore.instance
-          .collection("courses")
-          .add(data);
+     await FirebaseFirestore.instance
+    .collection("courses")
+    .add(data);
 
-      if (!mounted) return;
+// ==============================
+// AUTO ADD QUIZ
+// ==============================
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Course Added Successfully"),
-        ),
-      );
+final courseName = titleController.text.trim().toLowerCase();
+
+if (defaultQuizData.containsKey(courseName)) {
+  for (final quiz in defaultQuizData[courseName]!) {
+    await FirebaseFirestore.instance
+        .collection("quizzes")
+        .add({
+      "courseName": courseName,
+      "question": quiz["question"],
+      "option1": quiz["option1"],
+      "option2": quiz["option2"],
+      "option3": quiz["option3"],
+      "option4": quiz["option4"],
+      "answer": quiz["answer"],
+      "createdAt": Timestamp.now(),
+    });
+  }
+}
+
+if (!mounted) return;
+
+ScaffoldMessenger.of(context).showSnackBar(
+  const SnackBar(
+    content: Text("Course Added Successfully"),
+  ),
+);
     } else {
       await FirebaseFirestore.instance
           .collection("courses")

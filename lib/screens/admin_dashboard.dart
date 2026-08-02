@@ -1,13 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
+import 'login_screen.dart';
 import 'manage_courses_screen.dart';
 import 'add_course_screen.dart';
-import 'add_video_screen.dart';
 import 'student_list_screen.dart';
 import 'analytics_screen.dart';
+import 'add_quiz_screen.dart';
+import 'manage_quiz_screen.dart';
 
 class AdminDashboard extends StatelessWidget {
   const AdminDashboard({super.key});
+
+  Future<void> logout(BuildContext context) async {
+    await FirebaseAuth.instance.signOut();
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const LoginScreen(),
+      ),
+      (route) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +33,12 @@ class AdminDashboard extends StatelessWidget {
         title: const Text("Admin Dashboard"),
         backgroundColor: const Color(0xff1565C0),
         foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () => logout(context),
+          ),
+        ],
       ),
 
       body: Padding(
@@ -27,7 +48,6 @@ class AdminDashboard extends StatelessWidget {
           crossAxisSpacing: 20,
           mainAxisSpacing: 20,
           children: [
-
             dashboardCard(
               context,
               Icons.menu_book,
@@ -57,6 +77,12 @@ class AdminDashboard extends StatelessWidget {
               Icons.bar_chart,
               "Analytics",
             ),
+
+            dashboardCard(
+              context,
+              Icons.quiz,
+              "Manage Quiz",
+            ),
           ],
         ),
       ),
@@ -74,7 +100,6 @@ class AdminDashboard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         onTap: () {
 
-          // Manage Courses
           if (title == "Manage Courses") {
             Navigator.push(
               context,
@@ -84,7 +109,6 @@ class AdminDashboard extends StatelessWidget {
             );
           }
 
-          // Add Course
           else if (title == "Add Course") {
             Navigator.push(
               context,
@@ -94,17 +118,15 @@ class AdminDashboard extends StatelessWidget {
             );
           }
 
-          // Add Videos
           else if (title == "Add Videos") {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => const AddVideoScreen(),
+                builder: (_) => const ManageCoursesScreen(),
               ),
             );
           }
 
-          // Students
           else if (title == "Students") {
             Navigator.push(
               context,
@@ -114,12 +136,20 @@ class AdminDashboard extends StatelessWidget {
             );
           }
 
-          // Analytics
           else if (title == "Analytics") {
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (_) => const AnalyticsScreen(),
+              ),
+            );
+          }
+
+          else if (title == "Manage Quiz") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const ManageQuizScreen(),
               ),
             );
           }

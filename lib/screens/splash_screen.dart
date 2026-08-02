@@ -1,9 +1,12 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'login_screen.dart';
 import 'home_screen.dart';
+import 'admin_dashboard.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -16,32 +19,69 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-
     checkLogin();
   }
 
-  void checkLogin() {
-    Timer(const Duration(seconds: 3), () {
+  Future<void> checkLogin() async {
+    await Future.delayed(const Duration(seconds: 2));
+
+    if (!mounted) return;
+
+    final User? user = FirebaseAuth.instance.currentUser;
+
+    // User not logged in
+    if (user == null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const LoginScreen(),
+        ),
+      );
+      return;
+    }
+
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection("users")
+          .doc(user.uid)
+          .get();
+
       if (!mounted) return;
 
-      User? user = FirebaseAuth.instance.currentUser;
+      if (doc.exists) {
+        final data = doc.data()!;
 
-      if (user != null) {
+        if (data["role"] == "admin") {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const AdminDashboard(),
+            ),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const HomeScreen(),
+            ),
+          );
+        }
+      } else {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (_) => const HomeScreen(),
           ),
         );
-      } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const LoginScreen(),
-          ),
-        );
       }
-    });
+    } catch (e) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const HomeScreen(),
+        ),
+      );
+    }
   }
 
   @override

@@ -4,6 +4,10 @@ import '../widgets/custom_textfield.dart';
 import '../services/auth_service.dart';
 import 'signup_screen.dart';
 import 'home_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'admin_dashboard.dart';
+import 'admin_login_screen.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,6 +17,10 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+
+  // Hidden Admin Tap Counter
+  int adminTapCount = 0;
+
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
@@ -48,13 +56,36 @@ class _LoginScreenState extends State<LoginScreen> {
           content: Text("Login Successful"),
         ),
       );
+final doc = await FirebaseFirestore.instance
+    .collection("users")
+    .doc(user.uid)
+    .get();
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const HomeScreen(),
-        ),
-      );
+print("UID: ${user.uid}");
+print("Document Exists: ${doc.exists}");
+print("Data: ${doc.data()}");
+
+final data = doc.data();
+
+if (data != null && data["role"] == "admin") {
+  print("ADMIN LOGIN");
+
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(
+      builder: (_) => const AdminDashboard(),
+    ),
+  );
+} else {
+  print("STUDENT LOGIN");
+
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(
+      builder: (_) => const HomeScreen(),
+    ),
+  );
+}
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -84,15 +115,31 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               const SizedBox(height: 40),
 
-              const CircleAvatar(
-                radius: 50,
-                backgroundColor: Color(0xff1565C0),
-                child: Icon(
-                  Icons.school,
-                  color: Colors.white,
-                  size: 55,
-                ),
-              ),
+             GestureDetector(
+  onTap: () {
+    adminTapCount++;
+
+    if (adminTapCount >= 5) {
+      adminTapCount = 0;
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const AdminLoginScreen(),
+        ),
+      );
+    }
+  },
+  child: const CircleAvatar(
+    radius: 50,
+    backgroundColor: Color(0xff1565C0),
+    child: Icon(
+      Icons.school,
+      color: Colors.white,
+      size: 55,
+    ),
+  ),
+),
 
               const SizedBox(height: 20),
 

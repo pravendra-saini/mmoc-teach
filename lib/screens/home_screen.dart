@@ -10,7 +10,7 @@ import 'wishlist_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'admin_dashboard.dart';
 import '../models/course_model.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -77,18 +77,20 @@ Widget build(BuildContext context) {
       elevation: 0,
       title: const Text("MMOC Teach"),
       actions: [
-        IconButton(
-  icon: const Icon(Icons.admin_panel_settings),
-  tooltip: "Admin",
-  onPressed: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const AdminDashboard(),
-      ),
-    );
-  },
-),
+if (FirebaseAuth.instance.currentUser?.email ==
+    "pravendrasaini303@gmail.com")
+  IconButton(
+    icon: const Icon(Icons.admin_panel_settings),
+    tooltip: "Admin",
+    onPressed: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const AdminDashboard(),
+        ),
+      );
+    },
+  ),
         IconButton(
           icon: const Icon(Icons.logout),
           onPressed: () async {

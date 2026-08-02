@@ -2,16 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AddVideoScreen extends StatefulWidget {
-  const AddVideoScreen({super.key});
+  final String courseId;
+  final String courseName;
+
+  const AddVideoScreen({
+    super.key,
+    required this.courseId,
+    required this.courseName,
+  });
 
   @override
   State<AddVideoScreen> createState() => _AddVideoScreenState();
 }
 
 class _AddVideoScreenState extends State<AddVideoScreen> {
-  final TextEditingController courseController =
-      TextEditingController();
-
   final TextEditingController titleController =
       TextEditingController();
 
@@ -21,9 +25,10 @@ class _AddVideoScreenState extends State<AddVideoScreen> {
   final TextEditingController durationController =
       TextEditingController();
 
+  bool isLoading = false;
+
   @override
   void dispose() {
-    courseController.dispose();
     titleController.dispose();
     urlController.dispose();
     durationController.dispose();
@@ -31,8 +36,7 @@ class _AddVideoScreenState extends State<AddVideoScreen> {
   }
 
   Future<void> saveVideo() async {
-    if (courseController.text.trim().isEmpty ||
-        titleController.text.trim().isEmpty ||
+    if (titleController.text.trim().isEmpty ||
         urlController.text.trim().isEmpty ||
         durationController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -43,13 +47,21 @@ class _AddVideoScreenState extends State<AddVideoScreen> {
       return;
     }
 
+    setState(() {
+      isLoading = true;
+    });
+
     await FirebaseFirestore.instance.collection("videos").add({
-      "courseName": courseController.text.trim(),
+      "courseId": widget.courseId,
+     "courseName": widget.courseName.trim().toLowerCase(),
       "title": titleController.text.trim(),
       "videoUrl": urlController.text.trim(),
-      "duration":
-          int.tryParse(durationController.text.trim()) ?? 0,
+      "duration": int.tryParse(durationController.text.trim()) ?? 0,
       "createdAt": Timestamp.now(),
+    });
+
+    setState(() {
+      isLoading = false;
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -58,7 +70,6 @@ class _AddVideoScreenState extends State<AddVideoScreen> {
       ),
     );
 
-    courseController.clear();
     titleController.clear();
     urlController.clear();
     durationController.clear();
@@ -78,40 +89,53 @@ class _AddVideoScreenState extends State<AddVideoScreen> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            TextField(
-              controller: courseController,
-              decoration: const InputDecoration(
-                labelText: "Course Name",
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(15),
+              decoration: BoxDecoration(
+                color: Colors.blue.shade50,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                "Course : ${widget.courseName}",
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
 
-            const SizedBox(height: 15),
+            const SizedBox(height: 20),
 
             TextField(
               controller: titleController,
               decoration: const InputDecoration(
                 labelText: "Video Title",
+                border: OutlineInputBorder(),
               ),
             ),
 
-            const SizedBox(height: 15),
+            const SizedBox(height: 20),
 
             TextField(
               controller: urlController,
               decoration: const InputDecoration(
-                labelText: "Video URL",
+                labelText: "YouTube Video URL",
+                border: OutlineInputBorder(),
               ),
             ),
 
-            const SizedBox(height: 15),
+            const SizedBox(height: 20),
 
             TextField(
               controller: durationController,
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(
                 labelText: "Duration (Minutes)",
+                border: OutlineInputBorder(),
               ),
             ),
 
@@ -124,14 +148,18 @@ class _AddVideoScreenState extends State<AddVideoScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xff1565C0),
                 ),
-                onPressed: saveVideo,
-                child: const Text(
-                  "Save Video",
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                  ),
-                ),
+                onPressed: isLoading ? null : saveVideo,
+                child: isLoading
+                    ? const CircularProgressIndicator(
+                        color: Colors.white,
+                      )
+                    : const Text(
+                        "Save Video",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                        ),
+                      ),
               ),
             ),
           ],

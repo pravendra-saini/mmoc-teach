@@ -57,11 +57,16 @@ class _SignupScreenState extends State<SignupScreen> {
 
     if (user != null) {
       UserModel newUser = UserModel(
-        uid: user.uid,
-        name: nameController.text.trim(),
-        email: emailController.text.trim(),
-        mobile: mobileController.text.trim(),
-      );
+  uid: user.uid,
+  name: nameController.text.trim(),
+  email: emailController.text.trim(),
+  mobile: mobileController.text.trim(),
+
+  // Admin Email
+  role: emailController.text.trim() == "pravendrasaini303@gmail.com"
+      ? "admin"
+      : "student",
+);
 try {
   print("Before Save");
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/course_model.dart';
+import '../screens/course_videos_screen.dart';
 import '../screens/course_details_screen.dart';
 
 class CourseCard extends StatelessWidget {
@@ -16,15 +17,15 @@ class CourseCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CourseDetailsScreen(
-              course: course,
-            ),
-          ),
-        );
-      },
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => CourseDetailsScreen(
+        course: course,
+      ),
+    ),
+  );
+},
       child: Container(
         width: 260,
         margin: const EdgeInsets.only(right: 15),

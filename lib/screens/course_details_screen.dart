@@ -7,6 +7,8 @@ import '../data/video_data.dart';
 import 'video_player_screen.dart';
 import 'video_list_screen.dart';
 import 'review_screen.dart';
+import 'course_videos_screen.dart';
+import 'quiz_screen.dart';
 
 
 class CourseDetailsScreen extends StatelessWidget {
@@ -124,29 +126,18 @@ SizedBox(
       backgroundColor: Colors.deepOrange,
     ),
     onPressed: () {
-      final videos = videoData[course.title];
-
-      if (videos == null || videos.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("No Videos Available"),
-          ),
-        );
-        return;
-      }
-
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => VideoListScreen(
-            courseTitle: course.title,
-          
-          ),
+         builder: (_) => CourseVideosScreen(
+  courseName: course.title.trim().toLowerCase(),
+),
         ),
       );
     },
   ),
 ),
+                
                   const SizedBox(height: 20),
 
 
@@ -171,6 +162,36 @@ SizedBox(
         MaterialPageRoute(
           builder: (_) => ReviewScreen(
             courseName: course.title,
+          ),
+        ),
+      );
+    },
+  ),
+),
+
+const SizedBox(height: 20),
+
+SizedBox(
+  width: double.infinity,
+  height: 55,
+  child: ElevatedButton.icon(
+    icon: const Icon(Icons.quiz),
+    label: const Text(
+      "Take Quiz",
+      style: TextStyle(
+        fontSize: 18,
+        color: Colors.white,
+      ),
+    ),
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.purple,
+    ),
+    onPressed: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => QuizScreen(
+            courseName: course.title.trim().toLowerCase(),
           ),
         ),
       );

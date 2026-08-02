@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'add_course_screen.dart';
+import 'add_video_screen.dart';
 
 class ManageCoursesScreen extends StatelessWidget {
   const ManageCoursesScreen({super.key});
@@ -65,8 +66,7 @@ class ManageCoursesScreen extends StatelessWidget {
 
               return Card(
                 elevation: 5,
-                margin:
-                    const EdgeInsets.only(bottom: 15),
+                margin: const EdgeInsets.only(bottom: 15),
                 child: ListTile(
                   leading: const CircleAvatar(
                     backgroundColor: Color(0xff1565C0),
@@ -97,9 +97,7 @@ class ManageCoursesScreen extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
 
-                      // ======================
                       // EDIT COURSE
-                      // ======================
                       IconButton(
                         icon: const Icon(
                           Icons.edit,
@@ -118,22 +116,38 @@ class ManageCoursesScreen extends StatelessWidget {
                         },
                       ),
 
-                      // ======================
+                      // ADD VIDEO
+                      IconButton(
+                        icon: const Icon(
+                          Icons.video_library,
+                          color: Colors.green,
+                        ),
+                        tooltip: "Add Videos",
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => AddVideoScreen(
+                                courseId: doc.id,
+                                courseName: data["title"] ?? "",
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+
                       // DELETE COURSE
-                      // ======================
                       IconButton(
                         icon: const Icon(
                           Icons.delete,
                           color: Colors.red,
                         ),
                         onPressed: () async {
-
                           final ok = await showDialog<bool>(
                                 context: context,
                                 builder: (_) => AlertDialog(
                                   title: const Text(
-                                    "Delete Course",
-                                  ),
+                                      "Delete Course"),
                                   content: const Text(
                                     "Are you sure you want to delete this course?",
                                   ),
