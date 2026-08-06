@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'certificate_screen.dart';
 
 class CertificateScreen extends StatelessWidget {
   final String courseName;

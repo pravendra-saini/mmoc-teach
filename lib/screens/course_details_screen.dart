@@ -3,15 +3,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../models/course_model.dart';
-import '../data/video_data.dart';
-import 'video_player_screen.dart';
-import 'video_list_screen.dart';
-import 'review_screen.dart';
 import 'course_videos_screen.dart';
+import 'review_screen.dart';
 import 'quiz_screen.dart';
+import 'certificate_screen.dart';
 
-
-class CourseDetailsScreen extends StatelessWidget {
+class CourseDetailsScreen extends StatefulWidget {
   final CourseModel course;
 
   const CourseDetailsScreen({
@@ -20,7 +17,16 @@ class CourseDetailsScreen extends StatelessWidget {
   });
 
   @override
+  State<CourseDetailsScreen> createState() =>
+      _CourseDetailsScreenState();
+}
+
+class _CourseDetailsScreenState
+    extends State<CourseDetailsScreen> {
+  @override
   Widget build(BuildContext context) {
+    final course = widget.course;
+
     return Scaffold(
       backgroundColor: const Color(0xffF5F7FB),
 
@@ -36,17 +42,24 @@ class CourseDetailsScreen extends StatelessWidget {
           children: [
 
             // Course Image
-            Image.asset(
-              course.image,
-              width: double.infinity,
-              height: 220,
-              fit: BoxFit.cover,
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(20),
+                bottomRight: Radius.circular(20),
+              ),
+              child: Image.asset(
+                course.image,
+                width: double.infinity,
+                height: 220,
+                fit: BoxFit.cover,
+              ),
             ),
 
             Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
                 children: [
 
                   Text(
@@ -61,12 +74,21 @@ class CourseDetailsScreen extends StatelessWidget {
 
                   Row(
                     children: [
+
                       const Icon(
                         Icons.star,
                         color: Colors.orange,
                       ),
-                      const SizedBox(width: 5),
-                      Text("${course.rating} Rating"),
+
+                      const SizedBox(width: 8),
+
+                      Text(
+                        "${course.rating} Rating",
+                        style: const TextStyle(
+                          fontSize: 16,
+                        ),
+                      ),
+
                     ],
                   ),
 
@@ -74,17 +96,21 @@ class CourseDetailsScreen extends StatelessWidget {
 
                   Text(
                     "Teacher : ${course.teacher}",
-                    style: const TextStyle(fontSize: 18),
+                    style: const TextStyle(
+                      fontSize: 18,
+                    ),
                   ),
 
                   const SizedBox(height: 10),
 
                   Text(
                     "Duration : ${course.duration}",
-                    style: const TextStyle(fontSize: 18),
+                    style: const TextStyle(
+                      fontSize: 18,
+                    ),
                   ),
 
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 25),
 
                   const Text(
                     "About Course",
@@ -97,7 +123,7 @@ class CourseDetailsScreen extends StatelessWidget {
                   const SizedBox(height: 10),
 
                   const Text(
-                    "Learn this course from basic to advanced with practical projects and real examples.",
+                    "Learn this complete course from beginner to advanced level with practical examples, projects and quizzes.",
                     style: TextStyle(
                       fontSize: 16,
                       height: 1.6,
@@ -106,103 +132,217 @@ class CourseDetailsScreen extends StatelessWidget {
 
                   const SizedBox(height: 30),
 
-                  
-// =========================
-// VIDEO LESSON BUTTON
-// =========================
-SizedBox(
-  width: double.infinity,
-  height: 55,
-  child: ElevatedButton.icon(
-    icon: const Icon(Icons.play_circle_fill),
-    label: const Text(
-      "Watch Video Lessons",
-      style: TextStyle(
-        fontSize: 18,
-        color: Colors.white,
-      ),
-    ),
-    style: ElevatedButton.styleFrom(
-      backgroundColor: Colors.deepOrange,
-    ),
-    onPressed: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-         builder: (_) => CourseVideosScreen(
-  courseName: course.title.trim().toLowerCase(),
-),
-        ),
-      );
-    },
-  ),
-),
-                
+                                    // =========================
+                  // WATCH VIDEO LESSONS
+                  // =========================
+
+                  SizedBox(
+                    width: double.infinity,
+                    height: 55,
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.play_circle_fill),
+                      label: const Text(
+                        "Watch Video Lessons",
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.white,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.deepOrange,
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => CourseVideosScreen(
+                              courseName:
+                                  course.title.trim().toLowerCase(),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+
                   const SizedBox(height: 20),
 
+                  // =========================
+                  // REVIEW
+                  // =========================
 
-SizedBox(
-  width: double.infinity,
-  height: 55,
-  child: ElevatedButton.icon(
-    icon: const Icon(Icons.rate_review),
-    label: const Text(
-      "Write Review",
-      style: TextStyle(
-        fontSize: 18,
-        color: Colors.white,
-      ),
-    ),
-    style: ElevatedButton.styleFrom(
-      backgroundColor: Colors.green,
-    ),
-    onPressed: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => ReviewScreen(
-            courseName: course.title,
-          ),
-        ),
-      );
-    },
-  ),
-),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 55,
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.rate_review),
+                      label: const Text(
+                        "Write Review",
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.white,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ReviewScreen(
+                              courseName: course.title,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
 
-const SizedBox(height: 20),
-
-SizedBox(
-  width: double.infinity,
-  height: 55,
-  child: ElevatedButton.icon(
-    icon: const Icon(Icons.quiz),
-    label: const Text(
-      "Take Quiz",
-      style: TextStyle(
-        fontSize: 18,
-        color: Colors.white,
-      ),
-    ),
-    style: ElevatedButton.styleFrom(
-      backgroundColor: Colors.purple,
-    ),
-    onPressed: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => QuizScreen(
-            courseName: course.title.trim().toLowerCase(),
-          ),
-        ),
-      );
-    },
-  ),
-),
-
-const SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
                   // =========================
-                  // WISHLIST BUTTON
+                  // QUIZ
+                  // =========================
+
+                  SizedBox(
+                    width: double.infinity,
+                    height: 55,
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.quiz),
+                      label: const Text(
+                        "Take Quiz",
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.white,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.purple,
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => QuizScreen(
+                              courseName:
+                                  course.title.trim().toLowerCase(),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+
+                  const SizedBox(height: 25),
+
+                  // =========================
+                  // COURSE PROGRESS
+                  // =========================
+
+                  StreamBuilder<DocumentSnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection("enrollments")
+                        .doc(
+                          "${FirebaseAuth.instance.currentUser?.uid}_${course.title}",
+                        )
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData ||
+                          !snapshot.data!.exists) {
+                        return const SizedBox();
+                      }
+
+                      final data = snapshot.data!.data()
+                          as Map<String, dynamic>;
+
+                      final progress =
+                          (data["progress"] ?? 0) as int;
+
+                      return Column(
+                        crossAxisAlignment:
+                            CrossAxisAlignment.start,
+                        children: [
+
+                          const Text(
+                            "Course Progress",
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+
+                          const SizedBox(height: 10),
+
+                          LinearProgressIndicator(
+                            value: progress / 100,
+                            minHeight: 10,
+                            backgroundColor:
+                                Colors.grey.shade300,
+                            color: Colors.green,
+                          ),
+
+                          const SizedBox(height: 10),
+
+                          Text(
+                            "$progress% Completed",
+                            style: const TextStyle(
+                              fontWeight:
+                                  FontWeight.bold,
+                            ),
+                          ),
+
+                          if (progress == 100)
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(
+                                      top: 15),
+                              child: SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton.icon(
+                                  icon: const Icon(
+                                      Icons.workspace_premium),
+                                  style:
+                                      ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        Colors.orange,
+                                  ),
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            CertificateScreen(
+                                          courseName:
+                                              course.title,
+                                          studentName:
+                                              FirebaseAuth
+                                                      .instance
+                                                      .currentUser
+                                                      ?.email ??
+                                                  "Student",
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  label: const Text(
+                                    "Download Certificate",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 25),
+
+                                    // =========================
+                  // ADD TO WISHLIST
                   // =========================
 
                   SizedBox(
@@ -248,6 +388,8 @@ const SizedBox(height: 20),
                           "addedAt": Timestamp.now(),
                         });
 
+                        if (!context.mounted) return;
+
                         ScaffoldMessenger.of(context)
                             .showSnackBar(
                           const SnackBar(
@@ -286,6 +428,8 @@ const SizedBox(height: 20),
                         final already = await doc.get();
 
                         if (already.exists) {
+                          if (!context.mounted) return;
+
                           ScaffoldMessenger.of(context)
                               .showSnackBar(
                             const SnackBar(
@@ -308,6 +452,8 @@ const SizedBox(height: 20),
                           "enrolledAt": Timestamp.now(),
                         });
 
+                        if (!context.mounted) return;
+
                         ScaffoldMessenger.of(context)
                             .showSnackBar(
                           SnackBar(
@@ -320,12 +466,13 @@ const SizedBox(height: 20),
                       child: const Text(
                         "Enroll Now",
                         style: TextStyle(
-                          fontSize: 18,
                           color: Colors.white,
+                          fontSize: 18,
                         ),
                       ),
                     ),
                   ),
+
                 ],
               ),
             ),

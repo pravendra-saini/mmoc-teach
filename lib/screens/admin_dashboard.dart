@@ -6,8 +6,9 @@ import 'manage_courses_screen.dart';
 import 'add_course_screen.dart';
 import 'student_list_screen.dart';
 import 'analytics_screen.dart';
-import 'add_quiz_screen.dart';
 import 'manage_quiz_screen.dart';
+import 'manage_videos_screen.dart';
+import 'send_notification_screen.dart';
 
 class AdminDashboard extends StatelessWidget {
   const AdminDashboard({super.key});
@@ -33,7 +34,24 @@ class AdminDashboard extends StatelessWidget {
         title: const Text("Admin Dashboard"),
         backgroundColor: const Color(0xff1565C0),
         foregroundColor: Colors.white,
+
         actions: [
+
+          // 🔔 Send Notification
+          IconButton(
+            icon: const Icon(Icons.notifications),
+            tooltip: "Send Notification",
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const SendNotificationScreen(),
+                ),
+              );
+            },
+          ),
+
+          // 🚪 Logout
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () => logout(context),
@@ -48,6 +66,7 @@ class AdminDashboard extends StatelessWidget {
           crossAxisSpacing: 20,
           mainAxisSpacing: 20,
           children: [
+
             dashboardCard(
               context,
               Icons.menu_book,
@@ -122,7 +141,7 @@ class AdminDashboard extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => const ManageCoursesScreen(),
+                builder: (_) => const ManageVideosScreen(),
               ),
             );
           }

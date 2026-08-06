@@ -17,8 +17,12 @@ dependencies:
   firebase_auth: ^6.5.6
   cloud_firestore: ^6.7.1
 
-  video_player: ^2.10.0
-  chewie: ^1.8.5
+  # Open YouTube Videos
+  url_launcher: ^6.3.1
+
+  # Certificate Packages
+  pdf: ^3.11.0
+  printing: ^5.13.4
 
 dev_dependencies:
   flutter_test:

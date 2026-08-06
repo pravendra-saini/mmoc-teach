@@ -1,114 +1,199 @@
 import 'package:flutter/material.dart';
 import '../models/course_model.dart';
-import '../screens/course_videos_screen.dart';
 import '../screens/course_details_screen.dart';
 
 class CourseCard extends StatelessWidget {
   final CourseModel course;
+
   final Color color;
 
   const CourseCard({
     super.key,
     required this.course,
-    required this.color,
+    this.color = const Color(0xff1565C0),
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (_) => CourseDetailsScreen(
-        course: course,
-      ),
-    ),
-  );
-},
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => CourseDetailsScreen(
+              course: course,
+            ),
+          ),
+        );
+      },
       child: Container(
-        width: 260,
-        margin: const EdgeInsets.only(right: 15),
+        width: 240,
+        margin: const EdgeInsets.only(
+          left: 12,
+          right: 12,
+          bottom: 8,
+        ),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: const [
+          borderRadius: BorderRadius.circular(22),
+          boxShadow: [
             BoxShadow(
-              color: Colors.black12,
-              blurRadius: 8,
+              color: Colors.grey.withOpacity(.18),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
             ),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+
+            /// IMAGE
             ClipRRect(
               borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(18),
+                top: Radius.circular(22),
               ),
-              child: Image.asset(
-                course.image,
-                height: 140,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.all(15),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Stack(
                 children: [
-                  Text(
-                    course.title,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+
+                  Image.asset(
+                    course.image,
+                    width: double.infinity,
+                    height: 150,
+                    fit: BoxFit.cover,
+                  ),
+
+                  Positioned(
+                    top: 12,
+                    left: 12,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: color,
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: const Text(
+                        "BESTSELLER",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
 
-                  const SizedBox(height: 8),
-
-                  Text(
-                    course.teacher,
-                    style: const TextStyle(
-                      color: Colors.grey,
-                    ),
-                  ),
-
-                  const SizedBox(height: 8),
-
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.star,
-                        color: Colors.orange,
-                        size: 18,
-                      ),
-
-                      const SizedBox(width: 5),
-
-                      Text(
-                        course.rating.toString(),
-                      ),
-
-                      const Spacer(),
-
-                      const Icon(
-                        Icons.schedule,
-                        size: 18,
-                      ),
-
-                      const SizedBox(width: 5),
-
-                      Text(
-                        course.duration,
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),
+
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(15),
+                child: Column(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
+                  children: [
+
+                    Text(
+                      course.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    Text(
+                      "By ${course.teacher}",
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 14,
+                      ),
+                    ),
+
+                    const Spacer(),
+
+                    Row(
+                      children: [
+
+                        const Icon(
+                          Icons.star,
+                          color: Colors.amber,
+                          size: 20,
+                        ),
+
+                        const SizedBox(width: 5),
+
+                        Text(
+                          course.rating.toString(),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+
+                        const Spacer(),
+
+                        const Icon(
+                          Icons.schedule,
+                          size: 18,
+                          color: Colors.grey,
+                        ),
+
+                        const SizedBox(width: 5),
+
+                        Text(
+                          course.duration,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+
+                      ],
+                    ),
+
+                    const SizedBox(height: 15),
+
+                    SizedBox(
+                      width: double.infinity,
+                      height: 42,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: color,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  CourseDetailsScreen(
+                                course: course,
+                              ),
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          "View Course",
+                        ),
+                      ),
+                    ),
+
+                  ],
+                ),
+              ),
+            ),
+
           ],
         ),
       ),

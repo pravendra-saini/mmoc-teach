@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -18,69 +18,87 @@ class VideoPlayerScreen extends StatefulWidget {
   });
 
   @override
-  State<VideoPlayerScreen> createState() => _VideoPlayerScreenState();
+  State<VideoPlayerScreen> createState() =>
+      _VideoPlayerScreenState();
 }
 
 class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
-  late VideoPlayerController controller;
-
   bool progressUpdated = false;
 
-  @override
-  void initState() {
-    super.initState();
+  Future<void> _openVideo() async {
+    debugPrint("========== VIDEO DEBUG ==========");
+    debugPrint("VIDEO URL : ${widget.videoUrl}");
 
-    controller = VideoPlayerController.networkUrl(
-      Uri.parse(widget.videoUrl),
-    );
-
-    controller.initialize().then((_) {
-      setState(() {});
-    });
-
-    controller.addListener(_updateProgress);
-  }
-
-  Future<void> _updateProgress() async {
-    if (!controller.value.isInitialized) return;
-
-    if (progressUpdated) return;
-
-    if (controller.value.position >= controller.value.duration &&
-        controller.value.duration != Duration.zero) {
-      progressUpdated = true;
-
-      final user = FirebaseAuth.instance.currentUser;
-
-      if (user == null) return;
-
-      final progress =
-          (((widget.videoIndex + 1) / widget.totalVideos) * 100).round();
-
-      await FirebaseFirestore.instance
-          .collection("enrollments")
-          .doc("${user.uid}_${widget.courseTitle}")
-          .update({
-        "progress": progress,
-      });
-
+    if (widget.videoUrl.trim().isEmpty) {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            "Progress Updated : $progress%",
-          ),
+        const SnackBar(
+          content: Text("❌ Video URL Empty Hai"),
         ),
       );
+      return;
     }
+
+    final Uri url = Uri.parse(widget.videoUrl);
+
+    debugPrint("URI : $url");
+
+    if (!await canLaunchUrl(url)) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("❌ Invalid Video URL"),
+        ),
+      );
+
+      return;
+    }
+
+    await launchUrl(
+      url,
+      mode: LaunchMode.externalApplication,
+    );
   }
 
-  @override
-  void dispose() {
-    controller.removeListener(_updateProgress);
-    controller.dispose();
-    super.dispose();
+  Future<void> _markCompleted() async {
+    if (progressUpdated) return;
+
+    progressUpdated = true;
+
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) return;
+
+    int progress =
+        (((widget.videoIndex + 1) / widget.totalVideos) * 100)
+            .round();
+
+    if (progress > 100) {
+      progress = 100;
+    }
+
+    final doc = FirebaseFirestore.instance
+        .collection("enrollments")
+        .doc("${user.uid}_${widget.courseTitle}");
+
+    final snapshot = await doc.get();
+
+    if (snapshot.exists) {
+      await doc.update({
+        "progress": progress,
+        "updatedAt": Timestamp.now(),
+      });
+    }
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("🎉 Progress Updated : $progress%"),
+      ),
+    );
   }
 
   @override
@@ -91,97 +109,72 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         backgroundColor: const Color(0xff1565C0),
         foregroundColor: Colors.white,
       ),
-      body: Center(
-        child: controller.value.isInitialized
-            ? SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    AspectRatio(
-                      aspectRatio: controller.value.aspectRatio,
-                      child: VideoPlayer(controller),
-                    ),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            const Icon(
+              Icons.play_circle_fill,
+              size: 120,
+              color: Colors.red,
+            ),
 
-                    const SizedBox(height: 20),
+            const SizedBox(height: 20),
 
-                    VideoProgressIndicator(
-                      controller,
-                      allowScrubbing: true,
-                      colors: const VideoProgressColors(
-                        playedColor: Colors.blue,
-                        bufferedColor: Colors.grey,
-                        backgroundColor: Colors.black26,
-                      ),
-                    ),
+            Text(
+              widget.courseTitle,
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
 
-                    const SizedBox(height: 25),
+            const SizedBox(height: 10),
 
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            setState(() {
-                              if (controller.value.isPlaying) {
-                                controller.pause();
-                              } else {
-                                controller.play();
-                              }
-                            });
-                          },
-                          icon: Icon(
-                            controller.value.isPlaying
-                                ? Icons.pause
-                                : Icons.play_arrow,
-                          ),
-                          label: Text(
-                            controller.value.isPlaying
-                                ? "Pause"
-                                : "Play",
-                          ),
-                        ),
+            Text(
+              "Lesson ${widget.videoIndex + 1} of ${widget.totalVideos}",
+              style: const TextStyle(fontSize: 18),
+            ),
 
-                        const SizedBox(width: 20),
+            const SizedBox(height: 30),
 
-                        ElevatedButton.icon(
-                          onPressed: () async {
-                            await controller.seekTo(Duration.zero);
-                            controller.play();
-                          },
-                          icon: const Icon(Icons.replay),
-                          label: const Text("Replay"),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 30),
-
-                    Card(
-                      child: ListTile(
-                        leading: const Icon(
-                          Icons.school,
-                          color: Colors.blue,
-                        ),
-                        title: Text(widget.courseTitle),
-                        subtitle: Text(
-                          "Lesson ${widget.videoIndex + 1} of ${widget.totalVideos}",
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    const Text(
-                      "Watch the complete video to automatically update your course progress.",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
-                    ),
-                  ],
+            SizedBox(
+              width: double.infinity,
+              height: 55,
+              child: ElevatedButton.icon(
+                onPressed: _openVideo,
+                icon: const Icon(Icons.play_arrow),
+                label: const Text(
+                  "Watch Video",
+                  style: TextStyle(fontSize: 18),
                 ),
-              )
-            : const CircularProgressIndicator(),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            SizedBox(
+              width: double.infinity,
+              height: 55,
+              child: ElevatedButton.icon(
+                onPressed: _markCompleted,
+                icon: const Icon(Icons.check_circle),
+                label: const Text(
+                  "Mark as Completed",
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 30),
+
+            const Text(
+              "Click Watch Video to open YouTube.\nAfter watching, click Mark as Completed.",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16),
+            ),
+          ],
+        ),
       ),
     );
   }

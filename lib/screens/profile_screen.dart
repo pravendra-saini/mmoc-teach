@@ -11,15 +11,51 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController mobileController = TextEditingController();
+  final TextEditingController nameController =
+      TextEditingController();
+
+  final TextEditingController mobileController =
+      TextEditingController();
 
   bool isLoading = true;
+
+  int enrolledCourses = 0;
+  int completedCourses = 0;
+  int wishlistCourses = 0;
 
   @override
   void initState() {
     super.initState();
     loadUser();
+    loadStats();
+  }
+
+  Future<void> loadStats() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) return;
+
+    final enrollments = await FirebaseFirestore.instance
+        .collection("enrollments")
+        .where("uid", isEqualTo: user.uid)
+        .get();
+
+    enrolledCourses = enrollments.docs.length;
+
+    completedCourses = enrollments.docs
+        .where((e) => (e["progress"] ?? 0) == 100)
+        .length;
+
+    final wishlist = await FirebaseFirestore.instance
+        .collection("wishlist")
+        .where("uid", isEqualTo: user.uid)
+        .get();
+
+    wishlistCourses = wishlist.docs.length;
+
+    if (!mounted) return;
+
+    setState(() {});
   }
 
   Future<void> loadUser() async {
@@ -110,15 +146,170 @@ class _ProfileScreenState extends State<ProfileScreen> {
           : SingleChildScrollView(
               padding: const EdgeInsets.all(20),
               child: Column(
-                children: [
-                  const CircleAvatar(
+                children: [                  const CircleAvatar(
                     radius: 55,
                     backgroundColor: Color(0xff1565C0),
                     child: Icon(
                       Icons.person,
-                      color: Colors.white,
                       size: 60,
+                      color: Colors.white,
                     ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  Text(
+                    nameController.text.isEmpty
+                        ? "MMOC Student"
+                        : nameController.text,
+                    style: const TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  Text(
+                    user?.email ?? "",
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 16,
+                    ),
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  Row(
+                    children: [
+
+                      Expanded(
+                        child: Card(
+                          elevation: 5,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(18),
+                            child: Column(
+                              children: [
+
+                                const Icon(
+                                  Icons.menu_book,
+                                  color: Colors.blue,
+                                  size: 35,
+                                ),
+
+                                const SizedBox(height: 10),
+
+                                Text(
+                                  "$enrolledCourses",
+                                  style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+
+                                const SizedBox(height: 5),
+
+                                const Text(
+                                  "Courses",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(width: 10),
+
+                      Expanded(
+                        child: Card(
+                          elevation: 5,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(18),
+                            child: Column(
+                              children: [
+
+                                const Icon(
+                                  Icons.workspace_premium,
+                                  color: Colors.orange,
+                                  size: 35,
+                                ),
+
+                                const SizedBox(height: 10),
+
+                                Text(
+                                  "$completedCourses",
+                                  style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+
+                                const SizedBox(height: 5),
+
+                                const Text(
+                                  "Completed",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(width: 10),
+
+                      Expanded(
+                        child: Card(
+                          elevation: 5,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(18),
+                            child: Column(
+                              children: [
+
+                                const Icon(
+                                  Icons.favorite,
+                                  color: Colors.red,
+                                  size: 35,
+                                ),
+
+                                const SizedBox(height: 10),
+
+                                Text(
+                                  "$wishlistCourses",
+                                  style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+
+                                const SizedBox(height: 5),
+
+                                const Text(
+                                  "Wishlist",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
 
                   const SizedBox(height: 30),
@@ -126,7 +317,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   TextField(
                     controller: nameController,
                     decoration: InputDecoration(
-                      labelText: "Name",
+                      labelText: "Full Name",
                       prefixIcon: const Icon(Icons.person),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -156,7 +347,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     controller: mobileController,
                     keyboardType: TextInputType.phone,
                     decoration: InputDecoration(
-                      labelText: "Mobile",
+                      labelText: "Mobile Number",
                       prefixIcon: const Icon(Icons.phone),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -164,17 +355,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 35),
-
-                  SizedBox(
+                  const SizedBox(height: 30),
+                                    SizedBox(
                     width: double.infinity,
                     height: 55,
-                    child: ElevatedButton(
+                    child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xff1565C0),
                       ),
                       onPressed: saveProfile,
-                      child: const Text(
+                      icon: const Icon(
+                        Icons.save,
+                        color: Colors.white,
+                      ),
+                      label: const Text(
                         "Save Profile",
                         style: TextStyle(
                           fontSize: 18,
@@ -183,6 +377,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                   ),
+
+                  const SizedBox(height: 20),
+
+                  SizedBox(
+                    width: double.infinity,
+                    height: 55,
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        await FirebaseAuth.instance.signOut();
+
+                        if (!mounted) return;
+
+                        Navigator.popUntil(
+                          context,
+                          (route) => route.isFirst,
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.logout,
+                        color: Colors.red,
+                      ),
+                      label: const Text(
+                        "Logout",
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 30),
                 ],
               ),
             ),
