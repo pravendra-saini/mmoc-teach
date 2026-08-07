@@ -8,7 +8,7 @@ import 'student_list_screen.dart';
 import 'analytics_screen.dart';
 import 'manage_quiz_screen.dart';
 import 'manage_videos_screen.dart';
-import 'send_notification_screen.dart';
+import 'notification_screen.dart';
 
 class AdminDashboard extends StatelessWidget {
   const AdminDashboard({super.key});
@@ -45,7 +45,7 @@ class AdminDashboard extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const SendNotificationScreen(),
+                  builder: (_) => const NotificationScreen(),
                 ),
               );
             },

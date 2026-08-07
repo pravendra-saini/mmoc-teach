@@ -4,7 +4,6 @@ import '../screens/course_details_screen.dart';
 
 class CourseCard extends StatelessWidget {
   final CourseModel course;
-
   final Color color;
 
   const CourseCard({
@@ -13,6 +12,51 @@ class CourseCard extends StatelessWidget {
     this.color = const Color(0xff1565C0),
   });
 
+  //==============================
+  // AUTO IMAGE
+  //==============================
+  String getCourseImage() {
+    final title = course.title.toLowerCase();
+
+    if (title.contains("flutter")) {
+      return "assets/images/flutter.jpg";
+    }
+
+    if (title.contains("java")) {
+      return "assets/images/java.jpg";
+    }
+
+    if (title.contains("python")) {
+      return "assets/images/python.jpg";
+    }
+
+    if (title.contains("firebase")) {
+      return "assets/images/firebase.jpg";
+    }
+
+    if (title.contains("web")) {
+      return "assets/images/web.jpg";
+    }
+
+    if (title.contains("html")) {
+      return "assets/images/web.jpg";
+    }
+
+    if (title.contains("css")) {
+      return "assets/images/web.jpg";
+    }
+
+    if (title.contains("javascript")) {
+      return "assets/images/web.jpg";
+    }
+
+    if (title.contains("dart")) {
+      return "assets/images/flutter.jpg";
+    }
+
+    return "assets/images/default.jpg";
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -20,19 +64,13 @@ class CourseCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => CourseDetailsScreen(
-              course: course,
-            ),
+            builder: (_) => CourseDetailsScreen(course: course),
           ),
         );
       },
       child: Container(
         width: 240,
-        margin: const EdgeInsets.only(
-          left: 12,
-          right: 12,
-          bottom: 8,
-        ),
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(22),
@@ -48,7 +86,7 @@ class CourseCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            /// IMAGE
+            // IMAGE
             ClipRRect(
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(22),
@@ -57,7 +95,7 @@ class CourseCard extends StatelessWidget {
                 children: [
 
                   Image.asset(
-                    course.image,
+                    getCourseImage(),
                     width: double.infinity,
                     height: 150,
                     fit: BoxFit.cover,
@@ -85,7 +123,6 @@ class CourseCard extends StatelessWidget {
                       ),
                     ),
                   ),
-
                 ],
               ),
             ),
@@ -94,8 +131,7 @@ class CourseCard extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(15),
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
 
                     Text(
@@ -154,7 +190,6 @@ class CourseCard extends StatelessWidget {
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-
                       ],
                     ),
 
@@ -168,8 +203,7 @@ class CourseCard extends StatelessWidget {
                           backgroundColor: color,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                         ),
                         onPressed: () {
@@ -177,23 +211,17 @@ class CourseCard extends StatelessWidget {
                             context,
                             MaterialPageRoute(
                               builder: (_) =>
-                                  CourseDetailsScreen(
-                                course: course,
-                              ),
+                                  CourseDetailsScreen(course: course),
                             ),
                           );
                         },
-                        child: const Text(
-                          "View Course",
-                        ),
+                        child: const Text("View Course"),
                       ),
                     ),
-
                   ],
                 ),
               ),
             ),
-
           ],
         ),
       ),
