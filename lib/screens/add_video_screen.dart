@@ -16,14 +16,9 @@ class AddVideoScreen extends StatefulWidget {
 }
 
 class _AddVideoScreenState extends State<AddVideoScreen> {
-  final TextEditingController titleController =
-      TextEditingController();
-
-  final TextEditingController urlController =
-      TextEditingController();
-
-  final TextEditingController durationController =
-      TextEditingController();
+  final TextEditingController titleController = TextEditingController();
+  final TextEditingController urlController = TextEditingController();
+  final TextEditingController durationController = TextEditingController();
 
   bool isLoading = false;
 
@@ -53,12 +48,14 @@ class _AddVideoScreenState extends State<AddVideoScreen> {
 
     await FirebaseFirestore.instance.collection("videos").add({
       "courseId": widget.courseId,
-     "courseName": widget.courseName.trim().toLowerCase(),
+      "courseName": widget.courseName.trim().toLowerCase(),
       "title": titleController.text.trim(),
       "videoUrl": urlController.text.trim(),
       "duration": int.tryParse(durationController.text.trim()) ?? 0,
       "createdAt": Timestamp.now(),
     });
+
+    if (!mounted) return;
 
     setState(() {
       isLoading = false;
@@ -79,19 +76,16 @@ class _AddVideoScreenState extends State<AddVideoScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xffF5F7FB),
-
       appBar: AppBar(
         title: const Text("Add Video"),
         backgroundColor: const Color(0xff1565C0),
         foregroundColor: Colors.white,
       ),
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(15),
@@ -151,15 +145,15 @@ class _AddVideoScreenState extends State<AddVideoScreen> {
                 onPressed: isLoading ? null : saveVideo,
                 child: isLoading
                     ? const CircularProgressIndicator(
-                        color: Colors.white,
-                      )
+                  color: Colors.white,
+                )
                     : const Text(
-                        "Save Video",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                        ),
-                      ),
+                  "Save Video",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                  ),
+                ),
               ),
             ),
           ],

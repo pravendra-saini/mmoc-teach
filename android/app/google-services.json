@@ -12,7 +12,20 @@
           "package_name": "com.example.mmoc_teach"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "389424571531-n5elq4t5ubei9ogclnaruifjb9urmkbj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.mmoc_teach",
+            "certificate_hash": "93da2e6e2f22254764db1b446be11f6cccaf9426"
+          }
+        },
+        {
+          "client_id": "389424571531-p6f4m511h9asj8bk9rbun496d2m4v4e9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCwXKThStGqHdAAgsTgp-1mKnmorVUlBX4"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "389424571531-p6f4m511h9asj8bk9rbun496d2m4v4e9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "389424571531-pdfnsaqr504nhf0g9ik64psqks2jvmh1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.mmocTeach"
+              }
+            }
+          ]
         }
       }
     }

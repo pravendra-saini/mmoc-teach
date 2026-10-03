@@ -5,13 +5,10 @@ class ManageVideosScreen extends StatefulWidget {
   const ManageVideosScreen({super.key});
 
   @override
-  State<ManageVideosScreen> createState() =>
-      _ManageVideosScreenState();
+  State<ManageVideosScreen> createState() => _ManageVideosScreenState();
 }
 
-class _ManageVideosScreenState
-    extends State<ManageVideosScreen> {
-
+class _ManageVideosScreenState extends State<ManageVideosScreen> {
   final titleController = TextEditingController();
   final urlController = TextEditingController();
   final orderController = TextEditingController();
@@ -20,12 +17,10 @@ class _ManageVideosScreenState
   String? selectedCourseName;
 
   Future<void> addVideo() async {
-
     if (selectedCourseId == null ||
         titleController.text.isEmpty ||
         urlController.text.isEmpty ||
         orderController.text.isEmpty) {
-
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Fill all fields"),
@@ -34,23 +29,16 @@ class _ManageVideosScreenState
       return;
     }
 
-    await FirebaseFirestore.instance
-        .collection("videos")
-        .add({
-
+    await FirebaseFirestore.instance.collection("videos").add({
       "courseId": selectedCourseId,
       "courseName": selectedCourseName,
-
       "title": titleController.text.trim(),
-
       "youtubeUrl": urlController.text.trim(),
-
-      "order":
-          int.parse(orderController.text.trim()),
-
+      "order": int.parse(orderController.text.trim()),
       "createdAt": Timestamp.now(),
-
     });
+
+    if (!mounted) return;
 
     titleController.clear();
     urlController.clear();
@@ -65,31 +53,21 @@ class _ManageVideosScreenState
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-
       appBar: AppBar(
         title: const Text("Manage Videos"),
         backgroundColor: const Color(0xff1565C0),
         foregroundColor: Colors.white,
       ),
-
       body: SingleChildScrollView(
-
         padding: const EdgeInsets.all(20),
-
         child: Column(
-
           children: [
-
             StreamBuilder<QuerySnapshot>(
-
               stream: FirebaseFirestore.instance
                   .collection("courses")
                   .snapshots(),
-
               builder: (context, snapshot) {
-
                 if (!snapshot.hasData) {
                   return const CircularProgressIndicator();
                 }
@@ -97,144 +75,93 @@ class _ManageVideosScreenState
                 final docs = snapshot.data!.docs;
 
                 return DropdownButtonFormField<String>(
-
-                  value: selectedCourseId,
-
+                  initialValue: selectedCourseId,
                   decoration: const InputDecoration(
                     labelText: "Select Course",
                     border: OutlineInputBorder(),
                   ),
-
                   items: docs.map((doc) {
-
                     final data =
-                        doc.data() as Map<String, dynamic>;
+                    doc.data() as Map<String, dynamic>;
 
-                    return DropdownMenuItem(
-
+                    return DropdownMenuItem<String>(
                       value: doc.id,
-
-                      child: Text(data["title"]),
-
+                      child: Text(
+                        data["title"] ?? "",
+                      ),
                       onTap: () {
-
                         selectedCourseName =
-                            data["title"];
-
+                            data["title"] ?? "";
                       },
-
                     );
-
                   }).toList(),
-
                   onChanged: (value) {
-
                     setState(() {
-
                       selectedCourseId = value;
-
                     });
-
                   },
-
                 );
-
               },
-
             ),
 
             const SizedBox(height: 20),
 
             TextField(
-
               controller: titleController,
-
               decoration: const InputDecoration(
-
                 labelText: "Video Title",
-
                 border: OutlineInputBorder(),
-
               ),
-
             ),
 
             const SizedBox(height: 20),
 
             TextField(
-
               controller: urlController,
-
               decoration: const InputDecoration(
-
                 labelText: "YouTube URL",
-
                 border: OutlineInputBorder(),
-
               ),
-
             ),
 
             const SizedBox(height: 20),
 
             TextField(
-
               controller: orderController,
-
               keyboardType: TextInputType.number,
-
               decoration: const InputDecoration(
-
                 labelText: "Video Number",
-
                 border: OutlineInputBorder(),
-
               ),
-
             ),
 
             const SizedBox(height: 25),
 
             SizedBox(
-
               width: double.infinity,
-
               height: 55,
-
               child: ElevatedButton.icon(
-
                 style: ElevatedButton.styleFrom(
-
-                  backgroundColor:
-                      const Color(0xff1565C0),
-
+                  backgroundColor: const Color(0xff1565C0),
                 ),
-
                 onPressed: addVideo,
-
                 icon: const Icon(
                   Icons.save,
                   color: Colors.white,
                 ),
-
                 label: const Text(
-
                   "Save Video",
-
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,
                   ),
-
                 ),
-
               ),
-
             ),
 
             const SizedBox(height: 30),
 
-                        StreamBuilder<QuerySnapshot>(
+            StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection("videos")
                   .orderBy("order")
@@ -260,14 +187,16 @@ class _ManageVideosScreenState
 
                 return ListView.builder(
                   shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
+                  physics:
+                  const NeverScrollableScrollPhysics(),
                   itemCount: docs.length,
                   itemBuilder: (context, index) {
-                    final data =
-                        docs[index].data() as Map<String, dynamic>;
+                    final data = docs[index].data()
+                    as Map<String, dynamic>;
 
                     return Card(
-                      margin: const EdgeInsets.only(bottom: 12),
+                      margin:
+                      const EdgeInsets.only(bottom: 12),
                       child: ListTile(
                         leading: CircleAvatar(
                           backgroundColor: Colors.red,
@@ -279,9 +208,13 @@ class _ManageVideosScreenState
                           ),
                         ),
 
-                        title: Text(data["title"]),
+                        title: Text(
+                          data["title"] ?? "",
+                        ),
 
-                        subtitle: Text(data["courseName"]),
+                        subtitle: Text(
+                          data["courseName"] ?? "",
+                        ),
 
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -292,8 +225,9 @@ class _ManageVideosScreenState
                                 color: Colors.blue,
                               ),
                               onPressed: () {
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(
+                                ScaffoldMessenger.of(
+                                  context,
+                                ).showSnackBar(
                                   const SnackBar(
                                     content: Text(
                                       "Edit Feature Coming Next",
@@ -309,15 +243,19 @@ class _ManageVideosScreenState
                                 color: Colors.red,
                               ),
                               onPressed: () async {
-                                await FirebaseFirestore.instance
+                                await FirebaseFirestore
+                                    .instance
                                     .collection("videos")
                                     .doc(docs[index].id)
                                     .delete();
 
-                                if (!mounted) return;
+                                if (!context.mounted) {
+                                  return;
+                                }
 
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(
+                                ScaffoldMessenger.of(
+                                  context,
+                                ).showSnackBar(
                                   const SnackBar(
                                     content: Text(
                                       "Video Deleted",

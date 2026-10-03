@@ -9,18 +9,16 @@ class AuthService {
     required String password,
   }) async {
     try {
-      UserCredential user = await _auth.createUserWithEmailAndPassword(
+      UserCredential user =
+      await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
       return user.user;
-    } on FirebaseAuthException catch (e) {
-      print("Firebase Error: ${e.code}");
-      print("Firebase Message: ${e.message}");
+    } on FirebaseAuthException {
       return null;
-    } catch (e) {
-      print("Error: $e");
+    } catch (_) {
       return null;
     }
   }
@@ -31,18 +29,16 @@ class AuthService {
     required String password,
   }) async {
     try {
-      UserCredential user = await _auth.signInWithEmailAndPassword(
+      UserCredential user =
+      await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
 
       return user.user;
-    } on FirebaseAuthException catch (e) {
-      print("Firebase Error: ${e.code}");
-      print("Firebase Message: ${e.message}");
+    } on FirebaseAuthException {
       return null;
-    } catch (e) {
-      print("Error: $e");
+    } catch (_) {
       return null;
     }
   }

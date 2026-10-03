@@ -18,7 +18,6 @@ class PremiumBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-
         SizedBox(
           height: 230,
           child: PageView.builder(
@@ -26,16 +25,14 @@ class PremiumBanner extends StatelessWidget {
             itemCount: banners.length,
             onPageChanged: onPageChanged,
             itemBuilder: (context, index) {
-
               return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18),
-
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(25),
-
                   child: Stack(
                     children: [
-
                       Positioned.fill(
                         child: Image.asset(
                           banners[index],
@@ -51,7 +48,7 @@ class PremiumBanner extends StatelessWidget {
                               begin: Alignment.bottomCenter,
                               end: Alignment.topCenter,
                               colors: [
-                                Colors.black.withOpacity(.55),
+                                Colors.black.withValues(alpha: .55),
                                 Colors.transparent,
                               ],
                             ),
@@ -64,9 +61,8 @@ class PremiumBanner extends StatelessWidget {
                         bottom: 20,
                         child: Column(
                           crossAxisAlignment:
-                              CrossAxisAlignment.start,
+                          CrossAxisAlignment.start,
                           children: [
-
                             const Text(
                               "MMOC Teach",
                               style: TextStyle(
@@ -96,7 +92,7 @@ class PremiumBanner extends StatelessWidget {
                               decoration: BoxDecoration(
                                 color: Colors.orange,
                                 borderRadius:
-                                    BorderRadius.circular(30),
+                                BorderRadius.circular(30),
                               ),
                               child: const Text(
                                 "Start Learning",
@@ -106,11 +102,9 @@ class PremiumBanner extends StatelessWidget {
                                 ),
                               ),
                             ),
-
                           ],
                         ),
                       ),
-
                     ],
                   ),
                 ),
@@ -125,18 +119,21 @@ class PremiumBanner extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(
             banners.length,
-            (index) {
+                (index) {
               return AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                margin:
-                    const EdgeInsets.symmetric(horizontal: 4),
+                duration:
+                const Duration(milliseconds: 300),
+                margin: const EdgeInsets.symmetric(
+                  horizontal: 4,
+                ),
                 height: 8,
                 width: currentBanner == index ? 28 : 8,
                 decoration: BoxDecoration(
                   color: currentBanner == index
                       ? Colors.blue
                       : Colors.grey.shade400,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius:
+                  BorderRadius.circular(20),
                 ),
               );
             },

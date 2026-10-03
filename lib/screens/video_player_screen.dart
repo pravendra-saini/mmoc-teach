@@ -18,88 +18,159 @@ class VideoPlayerScreen extends StatefulWidget {
   });
 
   @override
-  State<VideoPlayerScreen> createState() =>
-      _VideoPlayerScreenState();
+  State<VideoPlayerScreen> createState() => _VideoPlayerScreenState();
 }
 
 class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   bool progressUpdated = false;
+  bool isSaving = false;
+
+  void _showSnack(String message) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+  }
+
+  // ============================================================
+  // OPEN VIDEO
+  // ============================================================
 
   Future<void> _openVideo() async {
     debugPrint("========== VIDEO DEBUG ==========");
     debugPrint("VIDEO URL : ${widget.videoUrl}");
 
-    if (widget.videoUrl.trim().isEmpty) {
-      if (!mounted) return;
+    final rawUrl = widget.videoUrl.trim();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("❌ Video URL Empty Hai"),
-        ),
-      );
+    if (rawUrl.isEmpty) {
+      _showSnack("❌ Video URL Empty Hai");
       return;
     }
 
-    final Uri url = Uri.parse(widget.videoUrl);
+    final Uri? url = Uri.tryParse(rawUrl);
+
+    if (url == null || !url.hasScheme) {
+      _showSnack("❌ Invalid Video URL");
+      return;
+    }
 
     debugPrint("URI : $url");
 
-    if (!await canLaunchUrl(url)) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("❌ Invalid Video URL"),
-        ),
+    try {
+      final opened = await launchUrl(
+        url,
+        mode: LaunchMode.externalApplication,
       );
 
-      return;
+      if (!opened) {
+        _showSnack("❌ Unable to open video");
+      }
+    } catch (e) {
+      debugPrint("LAUNCH ERROR: $e");
+      _showSnack("❌ Unable to open video");
     }
-
-    await launchUrl(
-      url,
-      mode: LaunchMode.externalApplication,
-    );
   }
 
-  Future<void> _markCompleted() async {
-    if (progressUpdated) return;
+  // ============================================================
+  // MARK COMPLETED
+  // ============================================================
 
-    progressUpdated = true;
+  Future<void> _markCompleted() async {
+    if (isSaving) return;
 
     final user = FirebaseAuth.instance.currentUser;
 
-    if (user == null) return;
-
-    int progress =
-        (((widget.videoIndex + 1) / widget.totalVideos) * 100)
-            .round();
-
-    if (progress > 100) {
-      progress = 100;
+    if (user == null) {
+      _showSnack("Please login first.");
+      return;
     }
 
-    final doc = FirebaseFirestore.instance
-        .collection("enrollments")
-        .doc("${user.uid}_${widget.courseTitle}");
+    if (widget.totalVideos <= 0) return;
 
-    final snapshot = await doc.get();
+    setState(() {
+      isSaving = true;
+    });
 
-    if (snapshot.exists) {
-      await doc.update({
+    try {
+      final enrollments =
+      FirebaseFirestore.instance.collection("enrollments");
+
+      final title = widget.courseTitle.trim();
+
+      final candidateIds = <String>{
+        "${user.uid}_$title",
+        "${user.uid}_${title.toLowerCase()}",
+        "${user.uid}_${title.toUpperCase()}",
+      };
+
+      DocumentReference<Map<String, dynamic>>? foundRef;
+      Map<String, dynamic>? foundData;
+
+      for (final id in candidateIds) {
+        final ref = enrollments.doc(id);
+        final snap = await ref.get();
+
+        if (snap.exists) {
+          foundRef = ref;
+          foundData = snap.data();
+          break;
+        }
+      }
+
+      if (foundRef == null) {
+        _showSnack("Please enroll in this course first.");
+        return;
+      }
+
+      final done = <int>{};
+      final saved = foundData?["completedLessons"];
+
+      if (saved is List) {
+        for (final e in saved) {
+          if (e is num) done.add(e.toInt());
+        }
+      }
+
+      if (done.contains(widget.videoIndex)) {
+        _showSnack("✅ Lesson already completed.");
+        return;
+      }
+
+      done.add(widget.videoIndex);
+
+      final progress =
+      ((done.length / widget.totalVideos) * 100).round().clamp(0, 100);
+
+      await foundRef.update({
+        "completedLessons": done.toList()..sort(),
+        "totalLessons": widget.totalVideos,
         "progress": progress,
         "updatedAt": Timestamp.now(),
       });
+
+      _showSnack(
+        "🎉 ${done.length}/${widget.totalVideos} lessons done ($progress%)",
+      );
+    } on FirebaseException catch (e) {
+      debugPrint("PROGRESS FIREBASE ERROR: ${e.code} - ${e.message}");
+      _showSnack("Unable to update progress.");
+    } catch (e) {
+      debugPrint("PROGRESS ERROR: $e");
+      _showSnack("Unable to update progress.");
+    } finally {
+      if (mounted) {
+        setState(() {
+          isSaving = false;
+        });
+      }
     }
-
-    if (!mounted) return;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("🎉 Progress Updated : $progress%"),
-      ),
-    );
   }
+  // ============================================================
+  // BUILD
+  // ============================================================
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +180,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         backgroundColor: const Color(0xff1565C0),
         foregroundColor: Colors.white,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
@@ -123,6 +194,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
             Text(
               widget.courseTitle,
+              textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -157,8 +229,14 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
               width: double.infinity,
               height: 55,
               child: ElevatedButton.icon(
-                onPressed: _markCompleted,
-                icon: const Icon(Icons.check_circle),
+                onPressed: isSaving ? null : _markCompleted,
+                icon: isSaving
+                    ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+                    : const Icon(Icons.check_circle),
                 label: const Text(
                   "Mark as Completed",
                   style: TextStyle(fontSize: 18),
